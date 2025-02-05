@@ -1,0 +1,17 @@
+{
+  "name": "cs4241-c25-a2-short-stack",
+  "version": "0.1.0",
+  "description": "WPI CS4241-C25 Assignment A2",
+  "author": "",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mime": "^2.4.4",
+    "mongodb": "^6.13.0"
+  },
+  "engines": {
+    "node": "16.x"
+  }
+}

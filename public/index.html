@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>CS4241 Assignment 2: Movie Logger</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- get rid of favicon error -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+    
+</head>
+<body>
+
+    <div class="container">
+        <header>
+        <h1>Movie Logger</h1>
+    </header>
+    <main>
+        <section class="form-section">
+            <h2>Add a Movie!</h2>
+            <h2>Required Fields</h2>
+            <form id="movie-form">
+                <div class="form-group">
+                <label for="movie-title">Title:</label>
+                <input type="text" id="movie-title" placeholder="Title" required>
+
+                <label for="movie-director">Director:</label>
+                <input type="text" id="movie-director" placeholder="Director" required>
+
+                <label for="movie-year">Year:</label>
+                <input type="number" id="movie-year" placeholder="Year" min="1888" max="2025" required>
+
+                <label for="movie-duration">Duration:</label>
+                <input type="number" id="movie-duration" placeholder="Duration (minutes)" min="1" max="999" required>
+
+                
+            </div>
+
+            <div class="form-group">
+                <h2>Optional Fields</h2>
+
+                <label for="movie-rating">Rating:</label>
+                <input type="number" id="movie-rating" placeholder="Rating (1-10)" min="1" max="10">
+
+                <label for="movie-review">Review:</label>
+                <input type="text" id="movie-review" placeholder="Review">
+            </div>
+            <button type="submit">Add Movie</button>
+            </form>
+        </section>
+        <section class="movie-list-section">
+            <h3>Movie List</h3>
+            <table id="movie-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Director</th>
+                        <th>Year</th>
+                        <th>Duration</th>
+                        <th>Rating</th> <!--optional, check how it displays when not answered!-->
+                        <th>Review</th> <!--optional, check how it displays when not answered!--> 
+                    </tr>
+                </thead>
+                <tbody id="movie-table-body">
+
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+<script src="js/main.js"></script>
+</body>
+</html>
