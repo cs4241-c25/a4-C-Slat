@@ -1,149 +1,222 @@
-    // IMPORTANT: you must run `npm install` in the directory for this assignment
-    // to install the mime library if you're testing this on your local machine.
-    // However, Glitch will install it automatically by looking in your package.json
-    // file.
+// IMPORTANT: you must run `npm install` in the directory for this assignment
+// to install the mime library if you're testing this on your local machine.
+// However, Glitch will install it automatically by looking in your package.json file.
 
 const express = require("express")
 const path = require("node:path");
-const req = require("express/lib/request"); //Express requirements
-const app = express();
+const app = express(); //Express requirements
+const mongoose = require("mongoose");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const session = require("express-session");
+const uri = "mongodb+srv://ctslattery:l7CpTIWrBZuDKZdG@cs4241.3i466.mongodb.net/?retryWrites=true&w=majority&appName=cs4241";
+mongoose.connect(uri)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('Could not connect to MongoDB', err));
 
-const movies = []
-let nextId = 1
+//Schemas:
 
-app.use(express.static(path.join(__dirname, 'public'))) //gives our static files in public directory
-
-app.use('/', (req, res, next) => {
-    console.log('Request URL: ' + req.url) //prints our URL
-    next() //go to the next middleware for this route
+const userSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
 })
 
-app.get('/serverpage', (req, res) => {
-    res.send('<html><head><title> Sample Page </title></head></html>' +
-        '<link rel="stylesheet" href="public/css/main.css" /></head>' +
-        '<body><h1>Sample Text!</h1></body>')
-});
+const User = mongoose.model("User", userSchema);
 
-app.get('/movie/:id', (req, res) => {
-   const movie = movies.find(m => m.id === parseInt(req.params.id)) //res.send('<html><title>Sample Page </title></html>' + //'<body><h1>Movie List: + req.params.id </h1></body>' ) //params should be pink here, look into why .get isnt creating param type!!!
-   if (movie) {
-       res.send(`
-            <html><head><title> Movie Info: </title></head></html>
+const movieSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    director: { type: String, required: true },
+    year: Number,
+    duration: Number,
+    rating: String,
+    review: String,
+    userID: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
+})
+
+const Movie = mongoose.model("Movie", movieSchema);
+
+//Passport Check
+passport.use(new LocalStrategy({
+    usernameField: "username",
+    passwordField: "password",
+}, async function(username, password, done){
+        try {
+            const user = await User.findOne({username: username})
+
+            if (!user) {
+                return done(null, false, {message: "Incorrect Username!"});
+            }
+            if (user.password !== password) {
+                return done(null, false, {message: "Incorrect Password!"});
+            }
+            return done(null, user);
+        } catch (err) {
+            return done(err);
+        }
+    }))
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+})
+
+passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+        done(err, user);
+    })
+})
+
+
+//app.use section
+
+app.use(session({
+    secret: 'secretKey',
+    resave: false,
+    saveUninitialized: false
+}))
+
+app.use(passport.initialize())
+app.use(passport.session())
+app.use(express.static(path.join(__dirname, 'public'))) //gives our static files in public directory
+app.use(express.json())
+
+//app.get URLs login related
+
+app.get("/", (req, res) => {
+    res.redirect('/login');
+})
+
+app.get('/login', (req, res) => {
+    if (req.isAuthenticated()) {
+        return res.redirect('/movie');
+    }
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+})
+
+//app.get URLs for movie stuff
+//check on this part with id's
+app.get('/movie/:id', async (req, res) => {
+    try {
+        const movie = await Movie.findById(req.params.id)
+        if (movie) {
+            res.send(`
+            <html lang="en"><head><title> Movie Info: </title></head></html>
             <body><h1>Movie: ${movie.title}</h1>
             <p>Director: ${movie.director}</p>
             <p>Year: ${movie.year}</p>
             <p>Duration: ${movie.duration} minutes</p>
             <p>Rating: ${movie.rating || 'N/A'}</p>
-            <p>Review: ${movie.review || 'N/A'}</p></body>
-        `);
-   } else {
-       res.status(404).send('Movie not found!')
-   }
-
-})
-
-app.get('/api', (req, res) => {
-    res.json({firstname: 'John', lastname: 'Doe'}); //this can be replaced with my movie attributes
-})
-
-app.get('/api/movies', (req, res) => {
-    res.json(movies)
-})
-
-app.post('/api/movies', express.json(), (req, res) => {
-    let movie = req.body;
-
-    movie.id = nextId++ //assigns ID to movie
-    movie.sortableTitle = movie.title.toLowerCase()
-        .replace(/^(a |an |the )/i, '') //slices leading articles
-        .trim()
-
-    const existingMovieIndex = movies.findIndex(m => //checks to see if movie already exists (movie.whatever isnt how i called it
-        m.title.toLowerCase() === movie.title.toLowerCase() &&
-        m.director.toLowerCase() === movie.director.toLowerCase()
-    )
-    if (existingMovieIndex !== -1) {
-        movies[existingMovieIndex] = movie; //updates the movie
-    } else {
-        movies.push(movie) //adds new movie
+            <p>Review: ${movie.review || 'N/A'}</p></body></html>
+             `);
+        } else {
+            res.status(404).send('Movie not found!')
+        }
+    } catch (err) {
+        res.status(500).send('Could not fetch movie info!')
     }
-    movies.sort((a, b) => a.sortableTitle.localeCompare(b.sortableTitle)) //sorts the movies in alphabetical order by title
-    res.status(200).json(movies)
-})
-    app.use((req, res) => {
-        res.status(404).send('404 Error: Not Found!')
 })
 
-/*
-const handleGet = function( request, response ) {
-    const filename = dir + request.url.slice( 1 )
 
-    if( request.url === "/" ) {
-        sendFile( response, "public/index.html" )
-    }else if(request.url === '/api/movies') {
-           movies.sort((a, b) => a.sortableTitle.localeCompare(b.sortableTitle))
-           response.writeHead(200, {"Content-Type": "application/json"})
-           response.end(JSON.stringify(movies))
-       } else {
-           sendFile(response, filename)
-       }
-   }
+app.get('/movie', isAuthenticated, async (req, res) => {
+    try{
+        const movie = await Movie.find({ userID: req.user._id }).sort({ title: 1})
+        res.json(movie)
+    } catch(err){
+        res.status(500).send('Could not fetch movie info!')
+    }
+})
 
+app.get('/api/movies', async (req, res) => {
+    try {
+        const movies = await Movie.find().sort({ title: 1 }); //sorts alphabetically by title
+        res.json(movies);
+    } catch (err) {
+        res.status(500).send('Could not retrieve movies from the database!');
+    }
+})
 
-   const handlePost = function(request, response) {
-    let dataString = ""
+//app.post login stuff
+app.post('/login', async (req, res, next) => {
+    const { username, password } = req.body;
+    const existingUser = await User.findOne({ username });
 
-    request.on("data", function(data) {
-        dataString += data
-    })
+    if (!existingUser) {
+        try {
+            const newUser = new User({ username, password });
+            await newUser.save();
 
-    request.on('end', function() {
-        let movie = JSON.parse(dataString)
-
-        movie.sortableTitle = movie.title.toLowerCase() //adds a sorting field
-            .replace(/^(a |an |the )/i, '') //removes the leading articles
-            .trim()
-
-        const existingMovieIndex = movies.findIndex(m => //checks if the movie is in the table already by title and director
-            m.title.toLowerCase() === movie.title.toLowerCase() &&
-            m.director.toLowerCase() === movie.director.toLowerCase()
-        )
-
-        if (existingMovieIndex !== -1) { //if the movie is in the table already, updates the movie
-            movies[existingMovieIndex] = movie
-        } else {
-            movies.push(movie)
+            req.login(newUser, (err) => {
+                if (err) return next(err);
+                return res.redirect('/movie');
+            });
+        } catch (err) {
+            return res.status(500).send('Error creating account.');
         }
+    } else {
+        passport.authenticate('local', {
+            successRedirect: '/movie',
+            failureRedirect: '/login',
+        })(req, res, next);
+    }
+});
 
-        movies.sort((a, b) => a.sortableTitle.localeCompare(b.sortableTitle)) //sorts the movies in alphabetical order by title
-
-        response.writeHead(200, "OK", {'Content-Type': 'application/json'})
-        response.end(JSON.stringify(movies))
-    })
+//checks authentication and if not returns to login
+function isAuthenticated (req, res, next) {
+    if (req.isAuthenticated()) {
+        return next()
+    } else {
+        res.redirect('/login')
+    }
 }
 
-const sendFile = function( response, filename ) {
-    const type = mime.getType( filename )
-
-    fs.readFile( filename, function( err, content ) {
-
-        // if the error = null, then we've loaded the file successfully
-        if( err === null ) {
-
-            // status code: https://httpstatuses.com
-            response.writeHeader( 200, { "Content-Type": type })
-            response.end( content )
-
+//app.post movie stuff
+app.post('/api/movies', async (req, res) => {
+    const { title, director, year, duration, rating, review, id } = req.body;
+    try {
+        // Create a movie associated with the logged-in user
+        if (id) {
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                return res.status(400).send('Invalid ID');
+            }
+            const existingMovie = await Movie.findById(id)
+            if (existingMovie) {
+                existingMovie.year = year;
+                existingMovie.duration = duration;
+                existingMovie.rating = rating;
+                existingMovie.review = review;
+                await existingMovie.save();
+                return res.json(existingMovie);
+            } else {
+                return res.status(404).send('Movie not found!');
+            }
         } else {
-
-            // file not found, error code 404
-            response.writeHeader( 404 )
-            response.end( "404 Error: File Not Found" )
-
+            const existingMovie = await Movie.findOne({ title, director, userId: req.user._id }); // Make sure movie belongs to logged-in user
+            if (existingMovie) {
+                existingMovie.year = year;
+                existingMovie.duration = duration;
+                existingMovie.rating = rating;
+                existingMovie.review = review;
+                await existingMovie.save();
+                return res.json(existingMovie);
+            } else {
+                const newMovie = new Movie({
+                    title,
+                    director,
+                    year,
+                    duration,
+                    rating,
+                    review,
+                    userId: req.user._id, // Associate the movie with the logged-in user
+                });
+                await newMovie.save();
+                return res.status(201).json(newMovie);
+            }
         }
-    })
-}
-*/
+    } catch (err) {
+        res.status(500).send('Could not save movie info!');
+    }
+});
+
+
 // process.env.PORT references the port that Glitch uses
 // the following line will either use the Glitch port or one that we provided
 const port = process.env.PORT || 3000

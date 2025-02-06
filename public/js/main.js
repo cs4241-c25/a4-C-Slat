@@ -7,7 +7,8 @@ const submit = async function( event ) {
     // remains to this day
     event.preventDefault()
 
-    //const uri = "mongodb+srv://ctslattery:l7CpTIWrBZuDKZdG@cs4241.3i466.mongodb.net/?retryWrites=true&w=majority&appName=cs4241" //connection string
+
+   //movie table info
 
     const input = {
         title: document.querySelector("#movie-title").value,
@@ -18,6 +19,7 @@ const submit = async function( event ) {
         review: document.querySelector("#movie-review").value
     }
 
+    //fetches movie api with POST
     const response = await fetch("/api/movies", {
         method: 'POST',
         headers: {
@@ -35,6 +37,7 @@ const submit = async function( event ) {
     document.querySelector("#movie-form").reset()
 }
 
+//updates table after additions
 function refreshMovieTable(movies) {
     const tbody = document.querySelector("#movie-table-body")
     tbody.innerHTML = '' // Clear current table
@@ -53,7 +56,7 @@ function refreshMovieTable(movies) {
     })
 }
 
-
+//probably need this to include userID at some point to check what movies should be in here
 window.onload = async function() { //load existing movies when page loads
     const form = document.querySelector("#movie-form")
     form.onsubmit = submit
