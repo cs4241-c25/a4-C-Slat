@@ -4,7 +4,7 @@
 
 const express = require("express")
 const path = require("node:path");
-const app = express(); //Express requirements
+const app = express();
 const mongoose = require("mongoose");
 const session = require("express-session");
 const uri = "mongodb+srv://ctslattery:l7CpTIWrBZuDKZdG@cs4241.3i466.mongodb.net/?retryWrites=true&w=majority&appName=cs4241";
