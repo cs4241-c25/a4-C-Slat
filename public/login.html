@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Login - CS4241 Movie Logger</title>
-    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +20,7 @@
     <main>
         <section class="form-section">
             <h2>Login</h2>
-            <form id="login-form" action="/login" method="post">
+            <form id="login-form" method="POST" action="/login">
                 <div class="form-group">
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username" placeholder="Username" required>
@@ -35,6 +34,39 @@
         </section>
     </main>
 </div>
+
+<script>
+    document.getElementById('login-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        if (!username || !password) {
+            alert('Please enter both a username and password!');
+            return;
+        }
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                localStorage.setItem('username', username);
+                window.location.href = '/';
+            } else {
+                alert('Login failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Login failed. Please try again.');
+        }
+    });
+</script>
 <script src="js/main.js"></script>
 </body>
 </html>

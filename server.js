@@ -6,22 +6,24 @@ const express = require("express")
 const path = require("node:path");
 const app = express(); //Express requirements
 const mongoose = require("mongoose");
-const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const uri = "mongodb+srv://ctslattery:l7CpTIWrBZuDKZdG@cs4241.3i466.mongodb.net/?retryWrites=true&w=majority&appName=cs4241";
 mongoose.connect(uri)
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Could not connect to MongoDB', err));
 
+
+//app.use section
+app.use(express.static(path.join(__dirname, 'public'))) //gives our static files in public directory
+app.use(session({
+    secret: 'spooky-secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
+app.use(express.json())
+
 //Schemas:
-
-const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-})
-
-const User = mongoose.model("User", userSchema);
 
 const movieSchema = new mongoose.Schema({
     title: { type: String, required: true },
@@ -30,70 +32,51 @@ const movieSchema = new mongoose.Schema({
     duration: Number,
     rating: String,
     review: String,
-    userID: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
 })
 
 const Movie = mongoose.model("Movie", movieSchema);
 
-//Passport Check
-passport.use(new LocalStrategy({
-    usernameField: "username",
-    passwordField: "password",
-}, async function(username, password, done){
-        try {
-            const user = await User.findOne({username: username})
+const userSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+});
 
-            if (!user) {
-                return done(null, false, {message: "Incorrect Username!"});
-            }
-            if (user.password !== password) {
-                return done(null, false, {message: "Incorrect Password!"});
-            }
-            return done(null, user);
-        } catch (err) {
-            return done(err);
-        }
-    }))
+const User = mongoose.model("User", userSchema);
 
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-})
+app.get('/', (req, res) => {
+    if (req.session.username) {
+        res.sendFile(path.join(__dirname, 'public/index.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
 
-passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-        done(err, user);
-    })
-})
-
-
-//app.use section
-
-app.use(session({
-    secret: 'secretKey',
-    resave: false,
-    saveUninitialized: false
-}))
-
-app.use(passport.initialize())
-app.use(passport.session())
-app.use(express.static(path.join(__dirname, 'public'))) //gives our static files in public directory
-app.use(express.json())
-
-//app.get URLs login related
-
-app.get("/", (req, res) => {
-    res.redirect('/login');
-})
 
 app.get('/login', (req, res) => {
-    if (req.isAuthenticated()) {
-        return res.redirect('/movie');
+    res.sendFile(path.join(__dirname, 'public/login.html'));
+});
+
+//login app.post
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        let user = await User.findOne({ username });
+        if (!user) {
+            user = new User({ username, password });
+            await user.save();
+        } else if (user.password !== password) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        req.session.username = username;
+        console.log("Session after login:", req.session);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error during login:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-})
+});
 
 //app.get URLs for movie stuff
-//check on this part with id's
 app.get('/movie/:id', async (req, res) => {
     try {
         const movie = await Movie.findById(req.params.id)
@@ -115,104 +98,75 @@ app.get('/movie/:id', async (req, res) => {
     }
 })
 
-
-app.get('/movie', isAuthenticated, async (req, res) => {
-    try{
-        const movie = await Movie.find({ userID: req.user._id }).sort({ title: 1})
-        res.json(movie)
-    } catch(err){
-        res.status(500).send('Could not fetch movie info!')
+//specific user movies
+app.get('/user-profile', async (req, res) => {
+    if (req.session.username) {
+        try {
+            const user = await User.findOne({ username: req.session.username });
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            const userMovies = await Movie.find({ user: req.session.username }).sort({ title: 1 });
+            return res.json({
+                username: user.username,
+                movies: userMovies,
+            });
+        } catch (err) {
+            console.error("Error fetching user profile:", err);
+            return res.status(500).json({ error: 'Could not fetch user profile' });
+        }
+    } else {
+        console.log("User is not logged in.");
+        return res.status(401).json({ error: 'User not logged in' });
     }
-})
+});
+
+
 
 app.get('/api/movies', async (req, res) => {
     try {
-        const movies = await Movie.find().sort({ title: 1 }); //sorts alphabetically by title
+        if (!req.session.username) {
+            return res.status(401).json({ error: "Please log in!" });
+        }
+        const movies = await Movie.find({ user: req.session.username }).sort({ title: 1 });
         res.json(movies);
     } catch (err) {
         res.status(500).send('Could not retrieve movies from the database!');
     }
-})
-
-//app.post login stuff
-app.post('/login', async (req, res, next) => {
-    const { username, password } = req.body;
-    const existingUser = await User.findOne({ username });
-
-    if (!existingUser) {
-        try {
-            const newUser = new User({ username, password });
-            await newUser.save();
-
-            req.login(newUser, (err) => {
-                if (err) return next(err);
-                return res.redirect('/movie');
-            });
-        } catch (err) {
-            return res.status(500).send('Error creating account.');
-        }
-    } else {
-        passport.authenticate('local', {
-            successRedirect: '/movie',
-            failureRedirect: '/login',
-        })(req, res, next);
-    }
 });
-
-//checks authentication and if not returns to login
-function isAuthenticated (req, res, next) {
-    if (req.isAuthenticated()) {
-        return next()
-    } else {
-        res.redirect('/login')
-    }
-}
 
 //app.post movie stuff
 app.post('/api/movies', async (req, res) => {
-    const { title, director, year, duration, rating, review, id } = req.body;
+    const { title, director, year, duration, rating, review } = req.body;
+    const username = req.session.username;
+    if (!username) {
+        return res.status(401).json({ error: 'Log in to add movies!' });
+    }
+
     try {
-        // Create a movie associated with the logged-in user
-        if (id) {
-            if (!mongoose.Types.ObjectId.isValid(id)) {
-                return res.status(400).send('Invalid ID');
-            }
-            const existingMovie = await Movie.findById(id)
-            if (existingMovie) {
-                existingMovie.year = year;
-                existingMovie.duration = duration;
-                existingMovie.rating = rating;
-                existingMovie.review = review;
-                await existingMovie.save();
-                return res.json(existingMovie);
-            } else {
-                return res.status(404).send('Movie not found!');
-            }
-        } else {
-            const existingMovie = await Movie.findOne({ title, director, userId: req.user._id }); // Make sure movie belongs to logged-in user
-            if (existingMovie) {
-                existingMovie.year = year;
-                existingMovie.duration = duration;
-                existingMovie.rating = rating;
-                existingMovie.review = review;
-                await existingMovie.save();
-                return res.json(existingMovie);
-            } else {
-                const newMovie = new Movie({
-                    title,
-                    director,
-                    year,
-                    duration,
-                    rating,
-                    review,
-                    userId: req.user._id, // Associate the movie with the logged-in user
-                });
-                await newMovie.save();
-                return res.status(201).json(newMovie);
-            }
-        }
+        const newMovie = new Movie({title, director, year, duration, rating, review, user: username });
+        await newMovie.save();
+        res.status(201).json(newMovie);
     } catch (err) {
+        console.error("Error saving movie:", err);
         res.status(500).send('Could not save movie info!');
+    }
+});
+
+//app.delete method
+
+app.delete('/api/movies/:id', async (req, res) => {
+    const movieId = req.params.id;
+    const username = req.body.user || req.session.username;
+
+    try {
+        const movie = await Movie.findOneAndDelete({ _id: movieId, user: username });
+        if (!movie) {
+            return res.status(404).json({ error: 'Movie not found!' });
+        }
+        res.json({ message: 'Movie deleted successfully!' });
+    } catch (err) {
+        res.status(500).send('Could not delete movie!');
     }
 });
 
@@ -225,4 +179,5 @@ app.listen(port, () => {
 })
 
 //server.listen( process.env.PORT || port )
+
 
