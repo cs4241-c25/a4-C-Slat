@@ -120,20 +120,22 @@ Write a paragraph of at least 125 words *for each of four principles* (four para
 Sample Readme (delete the above when you're ready to submit, and modify the below so with your links and descriptions)
 ---
 
-## Your Web Application Title
+## Personal Movie Logger!
 
 your glitch (or alternative server) link e.g. http://a3-wilson-wong.glitch.me
 
 Include a very brief summary of your project here. Images are encouraged, along with concise, high-level text. Be sure to include:
 
-- the goal of the application
-- challenges you faced in realizing the application
-- what authentication strategy you chose to use and why (choosing one because it seemed the easiest to implement is perfectly acceptable)
-- what CSS framework you used and why
-  - include any modifications to the CSS framework you made via custom CSS you authored
+- This project aims to allow users to login to a unique profile where they can write reviews about movies they've seen, give it a rating, 
+  and even a review if they'd like, as well as allowing them to delete or modify existing entries if they re-watch a film and have an updated opinion!
+
+- When creating this application, the biggest struggle was connecting to the backend as I have never dealt with databases before now, so it was a little bit of a tough time!
+- I also had a hard time when I tried implementing the login functionality because it started making my frontend info disappear even though it was still communicating with the database correctly.
+
+- I ended up authenticating with localStorage because when the assignment first came out I was using Passport, and it was giving me issues, so I went for a simpler approach and it worked better for me.
+- I went with Bootstrap for my CSS style framework as it is the most popular, has a lot of information about it online so I could get the most help, and I'm still getting my feet wet with web-design so I thought it would be the easiest.
+  - I customized some colors in Bootstrap's original palette to use colors I liked more and fit better with my website, as well as styled my fonts and buttons differently.
 
 ## Technical Achievements
-- **Tech Achievement 1**: I used OAuth authentication via the GitHub strategy
+- **Tech Achievement 1**: I hosted my application on Vercel as well as Glitch,
 
-## Design/Evaluation Achievements
-- **Design Achievement 1**: I followed the following tips from the W3C Web Accessibility Initiative...

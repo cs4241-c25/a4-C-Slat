@@ -1,13 +1,23 @@
-/*Body*/
+/* Body */
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f5f5f5;
     margin: 0;
     padding: 20px;
     color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-/*Header*/
+.container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Header */
 h1, h2, h3 {
     font-family: 'Poppins', sans-serif;
     color: #2c3e50;
@@ -23,67 +33,59 @@ h2 {
 }
 
 h1, h2 {
-    width: 100%;
     text-align: center;
     margin-top: 20px;
     margin-bottom: 15px;
 }
 
-/*Form*/
-.form-group {
-    display: flex;  
-    flex-wrap: wrap;  
-    gap: 15px; 
-    margin-bottom: 20px;
-    justify-content: center;
+/* Form */
+.form-section {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.form-group div {  
+/* Form Group */
+.form-group {
     display: flex;
-    align-items: center;
-    margin-right: 20px;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+}
+.form-group div {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .form-group input {
-    width: 150px;  
-    padding: 8px;
-    box-sizing: border-box;
-    height: 35px;
-}
-
-label {
-    margin-right: 10px; 
-    white-space: nowrap;  
-}
-
-table {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 8px;
+    height: 35px;
+    box-sizing: border-box;
 }
 
-th {
-    background-color: #2c3e50; 
-    color: white;
-    padding: 12px 20px;
-    text-align: left;
-    border-bottom: 2px solid #ddd;
+/* Label Styling */
+label {
+    margin-right: 10px;
+    white-space: nowrap;
 }
 
-/*Button*/
+/*Button Styling */
 button {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    background-color: #7393B3; 
+    background-color: #7393B3;
     color: white;
     border: none;
     border-radius: 4px;
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    padding: 10px 20px;
+    width: auto;
+    display: block;
+    margin: 20px auto;
 }
 
 button:hover {
@@ -94,28 +96,49 @@ button:active {
     transform: scale(0.9);
 }
 
-/*Mobile View*/
-@media (max-width: 600px){
-    .form-group{
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+th {
+    background-color: #2c3e50;
+    color: white;
+    padding: 12px 20px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+}
+
+/* Phone Layout */
+@media (max-width: 600px) {
+    .form-group {
         flex-direction: column;
         align-items: flex-start;
     }
+
     .form-group input {
         width: 100%;
     }
+
     h1 {
         font-size: 24px;
     }
+
     h2 {
         font-size: 20px;
     }
+
     button {
         width: 100%;
         padding: 10px 20px;
-        font-size: 12px;
+        font-size: 14px;
     }
 }
-/*Tablet View*/
+
+/* Tablet Layout*/
 @media (min-width: 601px) and (max-width: 1024px) {
     .form-group {
         flex-direction: row;
@@ -124,6 +147,9 @@ button:active {
 
     .form-group input {
         width: 200px;
+        padding: 10px;
+        box-sizing: border-box;
+        height: 35px;
     }
 
     h1 {
@@ -144,7 +170,7 @@ button:active {
     }
 }
 
-/*Desktop View*/
+/* Desktop Layout */
 @media (min-width: 1025px) {
     h1 {
         font-size: 36px;
