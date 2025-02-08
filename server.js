@@ -32,6 +32,7 @@ const movieSchema = new mongoose.Schema({
     duration: Number,
     rating: String,
     review: String,
+    user: { type: String, required: true }
 })
 
 const Movie = mongoose.model("Movie", movieSchema);
@@ -124,14 +125,16 @@ app.get('/user-profile', async (req, res) => {
 
 
 app.get('/api/movies', async (req, res) => {
+    const username = req.session.username
+    if (!username) {
+        return res.status(401).json({ error: 'User not logged in' });
+    }
     try {
-        if (!req.session.username) {
-            return res.status(401).json({ error: "Please log in!" });
-        }
-        const movies = await Movie.find({ user: req.session.username }).sort({ title: 1 });
+        const movies = await Movie.find({ user: username }).sort({ title: 1 });
         res.json(movies);
     } catch (err) {
-        res.status(500).send('Could not retrieve movies from the database!');
+        console.error('Error fetching movies:', err);
+        res.status(500).send('Failed to fetch movies');
     }
 });
 

@@ -60,7 +60,8 @@ const submit = async function (event) {
         year: document.querySelector("#movie-year").value,
         duration: document.querySelector("#movie-duration").value,
         rating: document.querySelector("#movie-rating").value,
-        review: document.querySelector("#movie-review").value
+        review: document.querySelector("#movie-review").value,
+        user: username
     };
 
     const movieResponse = await fetch("/api/movies", {
