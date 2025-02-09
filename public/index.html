@@ -4,57 +4,62 @@
     <title>CS4241 Assignment 3: Movie Logger</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJ6Z7z9O3vPnEOB+V7tW4ZwJYzqLnh+X7s9yB56Fh8F5gREvgsfGMKz5b6po" crossorigin="anonymous">
     <link rel="stylesheet" href="css/main.css">
+
+    <!-- get rid of favicon error -->
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 </head>
 <body>
-
-<div class="container">
+<div class="container my-5">
     <header class="text-center mb-4">
         <h1>Movie Logger</h1>
     </header>
 
     <main>
-        <section class="form-section mb-4">
+        <section class="form-section mb-5">
             <h2 class="text-center mb-4">Add a Movie!</h2>
-            <h3 class="text-center mb-4">Required Fields</h3>
+            <h3 class="text-center mb-3">Required Fields</h3>
             <form id="movie-form">
-                <div class="mb-3">
-                    <label for="movie-title" class="form-label">Title:</label>
-                    <input type="text" id="movie-title" class="form-control" placeholder="Title" required>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="movie-title" class="form-label">Title:</label>
+                        <input type="text" id="movie-title" class="form-control" placeholder="Title" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="movie-director" class="form-label">Director:</label>
+                        <input type="text" id="movie-director" class="form-control" placeholder="Director" required>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="movie-director" class="form-label">Director:</label>
-                    <input type="text" id="movie-director" class="form-control" placeholder="Director" required>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="movie-year" class="form-label">Year:</label>
+                        <input type="number" id="movie-year" class="form-control" placeholder="Year" min="1888" max="2025" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="movie-duration" class="form-label">Duration:</label>
+                        <input type="number" id="movie-duration" class="form-control" placeholder="Duration (minutes)" min="1" max="999" required>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="movie-year" class="form-label">Year:</label>
-                    <input type="number" id="movie-year" class="form-control" placeholder="Year" min="1888" max="2025" required>
+                <h3 class="text-center mb-3">Optional Fields</h3>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="movie-rating" class="form-label">Rating:</label>
+                        <input type="number" id="movie-rating" class="form-control" placeholder="Rating (1-10)" min="1" max="10">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="movie-review" class="form-label">Review:</label>
+                        <input type="text" id="movie-review" class="form-control" placeholder="Review">
+                    </div>
                 </div>
-
-                <div class="mb-3">
-                    <label for="movie-duration" class="form-label">Duration:</label>
-                    <input type="number" id="movie-duration" class="form-control" placeholder="Duration (minutes)" min="1" max="999" required>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Add Movie</button>
                 </div>
-
-                <div class="mb-3">
-                    <h3>Optional Fields</h3>
-                    <label for="movie-rating" class="form-label">Rating:</label>
-                    <input type="number" id="movie-rating" class="form-control" placeholder="Rating (1-10)" min="1" max="10">
-                </div>
-
-                <div class="mb-3">
-                    <label for="movie-review" class="form-label">Review:</label>
-                    <input type="text" id="movie-review" class="form-control" placeholder="Review">
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100">Add Movie</button>
             </form>
         </section>
 
@@ -78,7 +83,7 @@
         </section>
     </main>
 </div>
-
 <script src="js/main.js"></script>
 </body>
 </html>
+
