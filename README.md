@@ -1,8 +1,6 @@
 ## Personal Movie Logger!
 
-Conor Slattery: http://a3-C-Slat.glitch.me / https://my-repository-git-main-c-slats-projects.vercel.app/login
-
-Include a very brief summary of your project here. Images are encouraged, along with concise, high-level text. Be sure to include:
+Conor Slattery: http://a3-C-Slat.glitch.me / https://my-repository-git-main-c-slats-projects.vercel.app
 
 - This project aims to allow users to login to a unique profile where they can write reviews about movies they've seen, give it a rating,
   and even a review if they'd like, as well as allowing them to delete or modify existing entries if they re-watch a film and have an updated opinion!
@@ -16,5 +14,5 @@ Include a very brief summary of your project here. Images are encouraged, along 
 
 ## Technical Achievements
 
-- **Tech Achievement 1**: I hosted my application on Glitch and attempted to put it on Vercel, they work very similarly, but Glitch seems to have a lot more options for what you can adjust, whereas Vercel has a lot more documentation on how things are done. 
-
+- **Tech Achievement 1**: I hosted my application on Glitch and attempted to put it on Vercel, they work very similarly, but Glitch seems to have a lot more options for what you can adjust, whereas Vercel has a lot more documentation on how things are done.
+  Vercel is also a little confusing because they made me create another public repository to host my application, so that might get messy if then you want to delete the public repo.
