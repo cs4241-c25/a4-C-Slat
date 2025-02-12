@@ -133,7 +133,6 @@ window.onload = async function () {
             if (user) {
                 const form = document.querySelector("#movie-form");
                 form.onsubmit = submit;
-
                 const response = await fetch("/api/movies");
                 const movies = await response.json();
                 refreshMovieTable(movies);

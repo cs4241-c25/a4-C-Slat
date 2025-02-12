@@ -20,7 +20,7 @@
         <main>
             <section class="form-section">
                 <h2 class="text-center mb-4">Login</h2>
-                <form id="login-form" method="POST" action="/login">
+                <form id="login-form">
                     <div class="mb-3">
                         <label for="username" class="form-label">Username:</label>
                         <input type="text" id="username" name="username" class="form-control" placeholder="Username" required>
@@ -31,10 +31,17 @@
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Login</button>
                 </form>
+                <hr>
+                <div class="text-center">
+                    <a href="/auth/github" class="btn btn-dark w-100">
+                        Login with GitHub
+                    </a>
+                </div>
             </section>
         </main>
     </div>
 </div>
+
 <script>
     document.getElementById('login-form').addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -54,7 +61,6 @@
                 },
                 body: JSON.stringify({ username, password })
             });
-
             if (response.ok) {
                 localStorage.setItem('username', username);
                 window.location.href = '/';
