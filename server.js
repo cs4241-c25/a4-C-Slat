@@ -82,7 +82,7 @@ passport.use(new GitHubStrategy({
                 user = new User({
                     githubID: profile.id,
                     username: profile.username,
-                    email: profile.emails && profile.emails[0].value,  // Check for email
+                    email: profile.emails && profile.emails[0].value,
                 });
                 await user.save();
             }
